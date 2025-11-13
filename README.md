@@ -108,6 +108,42 @@ I verify that I personally directed all development decisions and understand eve
 - Batch pricing mode for analyzing multiple products at once
 - Add charts and data visualization for margin trends and competitor analysis
 
+## AI Usage Documentation
+
+### How AI Was Used
+
+This project uses Google Gemini through Google AI Studio to generate pricing recommendations for small business products. The AI model analyzes user inputs including cost per unit, competitor price, and product name, then produces a recommended selling price, estimated margin percent, and a three-tier pricing sensitivity table. AI is responsible for the reasoning, pricing logic, and explanatory text displayed in the app.
+
+### Function and Purpose of AI in the Product
+
+AI serves as the decision engine of the SMB Pricing Assistant. Its role is to:
+• Calculate a competitive but profitable price.
+• Provide the rationale behind the recommendation.
+• Generate low, base, and high pricing scenarios.
+• Help users understand margin tradeoffs through natural language explanations.
+Without AI, the product would be limited to static calculations rather than adaptive, context-aware pricing guidance.
+
+### Example Prompts Used in Google AI Studio
+
+**Prompt Example 1:**
+"Given the product name, cost per unit, and competitor price, recommend a fair selling price and explain the reasoning in two to three sentences."
+
+**Prompt Example 2:**
+"Return the recommended price, margin percent, and a low/base/high pricing scenario table. Format the output clearly so it can be displayed in a UI."
+
+**Prompt Example 3:**
+"Explain the pricing recommendation in a supportive tone for small business owners. Keep it concise and helpful."
+
+### Iteration Process
+1. Early prompts returned long, unstructured paragraphs that were difficult to parse programmatically.
+2. I refined the prompts to request structured outputs including distinct price values and a margin estimate.
+3. I added tone instructions to ensure the output aligned with the educational and supportive voice of the product.
+4. The final prompt set reliably produces consistent values, shorter explanations, and the low/base/high sensitivity model required for the UI.
+
+### Justification for the Level of AI Used
+
+The prototype only requires reasoning and generative text, so Gemini 1.5 Flash is an appropriate choice. More complex machine learning models or fine-tuning were unnecessary because the product does not rely on large datasets or predictive analytics. AI is intentionally used in a narrow, focused way to enhance clarity and decision support without overcomplicating the system.
+
 ## AI Disclosure
 
 > **AI Disclosure**  
