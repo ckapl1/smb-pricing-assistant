@@ -108,3 +108,19 @@ I verify that I personally directed all development decisions and understand eve
 - Batch pricing mode for analyzing multiple products at once
 - Add charts and data visualization for margin trends and competitor analysis
 
+## AI Disclosure
+
+> **AI Disclosure**  
+> Portions of this README and parts of this project were created with the assistance of AI tools (Cursor AI and ChatGPT). I provided specific instructions, context, and project requirements, and the AI generated draft text, code suggestions, and debugging guidance. All AI-generated material was reviewed, edited, and approved by me. I fully understand every component of this project, and no content was included without my explicit oversight.
+
+## Prompting Summary
+
+> **Prompting Summary**  
+> Throughout the development of this project, I used structured prompts to guide AI tools in generating code, debugging API errors, and refining documentation. Examples of how prompting was used include:  
+> - Asking AI Studio and Cursor to generate the initial HTML, CSS, and JavaScript structure for the pricing tool  
+> - Using targeted prompts to debug the Google Gemini API model error and switch to the correct `gemini-2.0-flash-001` endpoint  
+> - Prompting Cursor to restyle and clean the UI for a polished prototype  
+> - Using prompts to help draft and edit the README and PRD structure  
+>  
+> Prompts were iterative: I provided context → reviewed the output → refined the request. This ensured the final implementation matched the assignment requirements and that I understood all generated material.
+
