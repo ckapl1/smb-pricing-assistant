@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMB Pricing Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1>SMB Pricing Assistant</h1>
+            <p class="hero-subtitle">Get AI-powered pricing recommendations based on your costs and competitor analysis</p>
+        </header>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <form id="pricingForm">
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input type="text" id="productName" name="productName" placeholder="Enter product name" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label for="costPerUnit">Cost per Unit ($)</label>
+                        <input type="number" id="costPerUnit" name="costPerUnit" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group form-group-half">
+                        <label for="competitorPrice">Competitor Price ($)</label>
+                        <input type="number" id="competitorPrice" name="competitorPrice" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                </div>
+                
+                <button type="submit" id="generateBtn" class="btn-primary">
+                    <span class="btn-text">Generate price recommendation</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- AI Response Section -->
+        <section class="response-section" id="responseSection" style="display: none;">
+            <div class="section-header">
+                <h2>Price Recommendation</h2>
+            </div>
+            <div class="ai-output-card" id="aiResponse">
+                <!-- AI response will appear here -->
+            </div>
+        </section>
+
+        <!-- Sensitivity Table Section -->
+        <section class="table-section" id="tableSection" style="display: none;">
+            <div class="section-header">
+                <h2>Price Sensitivity Analysis</h2>
+            </div>
+            <div class="table-wrapper">
+                <table class="sensitivity-table">
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="scenario-cell">Low</td>
+                            <td id="lowPrice" class="price-cell">$0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="scenario-cell">Base</td>
+                            <td id="basePrice" class="price-cell">$0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="scenario-cell">High</td>
+                            <td id="highPrice" class="price-cell">$0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
