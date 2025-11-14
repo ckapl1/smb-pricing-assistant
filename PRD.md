@@ -5,7 +5,7 @@
 
 ## 1. Overview and Goal
 
-The SMB Pricing Assistant is a simple AI powered tool that helps SMB owners generate, fair data informed pricing recommendations based on costs inputs and competition. The project has progressed from the initial business pitch document to a working prototype. Please let me know if you have any trouble opening the project.
+The SMB Pricing Assistant is a simple AI powered tool that helps SMB owners generate data informed pricing recommendations based on costs inputs and competition. The project has progressed from the initial business pitch document to a working prototype. Please let me know if you have any trouble opening the project.
 
 ---
 
