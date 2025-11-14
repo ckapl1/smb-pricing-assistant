@@ -13,6 +13,8 @@ The SMB Pricing Assistant is a simple AI powered tool that helps SMB owners gene
    cd smb-pricing-assistant
 
 2. Add your Gemini API key in script.js.  
+   **Note:** The project will not run without an API key. I removed my personal key from the repository for safety reasons, but I verified that the UI and all features worked correctly before pushing the final version to GitHub.
+
 3. Open index.html in your browser.  
 
 The app runs entirely locally.
