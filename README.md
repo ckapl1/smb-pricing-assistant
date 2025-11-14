@@ -1,4 +1,4 @@
-# SMB Pricing Assistant
+# SMB Pricing Assistant (THIS IS ALL AI GENERATED)
 
 ## Project Overview
 
