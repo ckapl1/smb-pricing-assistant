@@ -1,162 +1,134 @@
-# SMB Pricing Assistant (THIS IS ALL AI GENERATED)
+# SMB Pricing Assistant  
 
-## Project Overview
+**This README includes AI generated material that I reviewed, edited, and validated. All AI assisted content was modified to accurately reflect my implementation and full understanding of the project.**
 
-The SMB Pricing Assistant is a web application that helps small business owners determine optimal pricing for their products. It leverages Google's Gemini AI model (via Google AI Studio and an API key) to generate intelligent price recommendations based on product cost and competitor pricing data. The application provides AI-powered insights along with a sensitivity analysis table showing how different price points affect profit margins.
+## Overview and Goal  
+The SMB Pricing Assistant is a simple AI powered tool that helps SMB owners generate data informed pricing recommendations based on cost inputs and competitor pricing. The project progressed from the initial business pitch document to a working Phase 2 prototype. The prototype demonstrates how AI can help small business owners make informed pricing decisions. Please let me know if you have any trouble opening or running the project.
 
-## Features
+---
 
-- **AI-powered pricing recommendation** - Uses Gemini AI to analyze cost and competitor data and provide personalized pricing advice
-- **Dynamic text response section** - Displays AI-generated recommendations in a clean, readable format
-- **Automatic price extraction** - Intelligently extracts the recommended price from the AI response using pattern matching
-- **Sensitivity table (low/base/high)** - Shows three pricing scenarios (±5% from base recommendation) with calculated margin percentages
-- **Clean, responsive UI with modern styling** - Professional gradient design with smooth animations and mobile-friendly layout
-- **Client-side JavaScript API call** - All API interactions happen directly from the browser
-- **No backend required** - Fully client-side application that runs entirely in the browser
-- **Runs locally in any browser** - Simply open the HTML file to use the application
-
-## How to Run the Project
-
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/ckapl1/smb-pricing-assistant.git
+## How to Run the Project  
+1. Clone the repo:  
+   git clone https://github.com/ckapl1/smb-pricing-assistant.git  
    cd smb-pricing-assistant
-   ```
 
-2. **Insert API key inside script.js at the GEMINI_API_KEY constant**
-   - Open `script.js` in a text editor
-   - Locate the line: `const GEMINI_API_KEY = "YOUR_API_KEY_HERE";`
-   - Replace `YOUR_API_KEY_HERE` with your Google AI Studio API key
-   - Save the file
+2. Add your Gemini API key in script.js.  
+3. Open index.html in your browser.  
 
-3. **Open index.html in any browser**
-   - Double-click `index.html` or open it from your browser's File menu
-   - The application will load and be ready to use
+The app runs entirely locally.
 
-4. **Everything works locally**
-   - No server setup required
-   - No build process needed
-   - All functionality runs directly in your browser
+---
 
-## File Structure
+## Prototype Demo Link  
+A rudimentary early version of the tool can also be tested directly through Google AI Studio at the link below:
 
-- **index.html** - Main HTML structure containing the form, response section, and sensitivity table
-- **style.css** - Complete styling with modern design system, responsive breakpoints, and smooth animations
-- **script.js** - Core JavaScript logic including API calls, price extraction, sensitivity calculations, and form handling
-- **listmodels.html** - Utility page for testing and listing available Gemini models via the API
+**https://ai.studio/apps/drive/1orcXevrWbV0St5hoJMhlC8367Bwv5NZa**
 
-## Technical Details
+This version demonstrates the core AI behavior behind the pricing recommendations before the full UI was developed.
 
-### Model Used
-The application uses the **"models/gemini-2.5-flash"** model via the Google Generative Language API. This model is accessed through the `generateContent` endpoint.
+---
 
-### API Integration
-- **Endpoint**: `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent`
-- **Method**: POST request with JSON payload containing the prompt
-- **Authentication**: API key passed as a query parameter
+## Core Features (Implemented)  
+* Input fields for product name, cost, and competitor price  
+* Generate price recommendation button  
+* Gemini powered pricing recommendation  
+* Automatic margin percentage calculation  
+* Clear conversational explanation text  
+* Basic frontend layout and structure  
 
-### Input Validation
-The form validates that:
-- Product name is provided (required field)
-- Cost per unit is a positive number (step: 0.01, min: 0)
-- Competitor price is a positive number (step: 0.01, min: 0)
+---
 
-### Price Extraction Logic
-The application uses multiple regex patterns to extract the recommended price from the AI response:
-1. First attempts to find lines containing "Recommended Price:" or similar patterns
-2. Falls back to searching for price patterns like "$X.xx" or "price: $X.xx"
-3. Validates that extracted prices are positive numbers
-4. If extraction fails, uses a fallback calculation (cost × 1.5)
+## Core Features (In Progress)  
+* Input validation and error handling  
+* More consistent formatting across responses  
+* Cleaner sensitivity table layout  
+* More advanced pricing elasticity modeling  
 
-### Sensitivity Analysis Formulas
-The sensitivity table calculates three scenarios based on the recommended price:
-- **Low**: `recommendedPrice × 0.95` (5% below base)
-- **Base**: `recommendedPrice` (AI recommendation)
-- **High**: `recommendedPrice × 1.05` (5% above base)
+---
 
-Margin calculation for each scenario:
-```
-margin = ((price - cost) / price) × 100
-```
+## AI Specification  
+AI analyzes three user inputs to produce:  
+* A recommended selling price  
+* A calculated margin estimate  
+* A short explanation of the pricing logic  
 
-### Frontend-Only Architecture
-- All processing happens client-side using vanilla JavaScript
-- No server-side code or backend infrastructure required
-- Direct API calls from the browser using the Fetch API
-- State management handled through DOM manipulation
-- No build tools or dependencies needed
+The AI is responsible for transforming inputs into pricing guidance. Gemini is behind every part of the output except the user inputs themselves.
 
-## Use of AI in This Project
+---
 
-This project was developed using a combination of manual coding and generative AI assistance. I used Cursor AI and ChatGPT to help with:  
-• writing starter code for the HTML/CSS/JavaScript  
-• debugging API errors related to Google Gemini model naming  
-• generating the listmodels endpoint output  
-• helping redesign portions of the UI  
-• helping write the README documentation  
+## Technical Architecture  
+*(This section was generated with the assistance of AI and reviewed by me.)*
 
-All AI-generated code was reviewed, tested, and fully understood before being included in the final submission. The logic for pricing, margin computation, and sensitivity analysis was verified independently. No part of the assignment was completed in a fully automated fashion; AI was used as a tool for productivity, not as a replacement for learning.
+### Frontend  
+* HTML for structure and input fields  
+* JavaScript for capturing inputs, constructing prompts, calling the Gemini API, and updating the UI  
+* Inline or light CSS for layout  
 
-## Academic Integrity Statement
+### AI Layer  
+* Direct call to Gemini 1.5 Flash  
+* Prompt includes product name, cost, and competitor price  
+* AI generates pricing text and explanation  
 
-I verify that I personally directed all development decisions and understand every line of code in this project. AI was used only within the guidelines of the course and institutional academic integrity policies.
+### Computation  
+* Margin percentage is calculated in JavaScript  
+* Sensitivity values are generated by applying fixed percentage adjustments  
 
-## Future Improvements
+---
 
-- Add backend authentication for secure API key management
-- Save user inputs and pricing history to a database
-- Batch pricing mode for analyzing multiple products at once
-- Add charts and data visualization for margin trends and competitor analysis
+## Prompting Strategy and Iteration Log  
 
-## AI Usage Documentation
+**Initial Prompt:**  
+"Given cost per unit and competitor price, recommend a selling price and explain why."  
+* Returned long text answers that were hard to format  
 
-### How AI Was Used
+**Follow up Prompt:**  
+"Return a recommended price, margin percent, and a low/base/high pricing table. Format cleanly."  
+* Produced better structure, but tone was slightly out of context  
 
-This project uses Google Gemini through Google AI Studio to generate pricing recommendations for small business products. The AI model analyzes user inputs including cost per unit, competitor price, and product name, then produces a recommended selling price, estimated margin percent, and a three-tier pricing sensitivity table. AI is responsible for the reasoning, pricing logic, and explanatory text displayed in the app.
+**Follow up Prompt:**  
+"Explain the pricing decision in a supportive tone for small business owners, limit to three sentences."  
+* Resulted in cleaner, easier to understand explanations  
 
-### Function and Purpose of AI in the Product
+---
 
-AI serves as the decision engine of the SMB Pricing Assistant. Its role is to:
-• Calculate a competitive but profitable price.
-• Provide the rationale behind the recommendation.
-• Generate low, base, and high pricing scenarios.
-• Help users understand margin tradeoffs through natural language explanations.
-Without AI, the product would be limited to static calculations rather than adaptive, context-aware pricing guidance.
+## UX and Design Notes  
+I wanted a simple and easy to follow user interface. I instructed Cursor to keep the layout minimal and follow common patterns seen in other SaaS tools. The goal was to create something familiar, intuitive, and fast for users.
 
-### Example Prompts Used in Google AI Studio
+---
 
-**Prompt Example 1:**
-"Given the product name, cost per unit, and competitor price, recommend a fair selling price and explain the reasoning in two to three sentences."
+## AI Usage Documentation  
 
-**Prompt Example 2:**
-"Return the recommended price, margin percent, and a low/base/high pricing scenario table. Format the output clearly so it can be displayed in a UI."
+### How AI Was Used  
+Gemini analyzes three inputs (product name, cost per unit, competitor price) and returns a recommended price, margin estimate, and a short explanation. It also provides the conversational explanation text seen in the UI.
 
-**Prompt Example 3:**
-"Explain the pricing recommendation in a supportive tone for small business owners. Keep it concise and helpful."
+### Purpose of AI  
+AI converts simple numeric inputs into clear, contextual pricing guidance. Without AI, the tool would rely only on fixed calculations rather than a more adaptive, insight driven recommendation.
 
-### Iteration Process
-1. Early prompts returned long, unstructured paragraphs that were difficult to parse programmatically.
-2. I refined the prompts to request structured outputs including distinct price values and a margin estimate.
-3. I added tone instructions to ensure the output aligned with the educational and supportive voice of the product.
-4. The final prompt set reliably produces consistent values, shorter explanations, and the low/base/high sensitivity model required for the UI.
+### Example Prompts Used  
+1. "Given the product name, cost per unit, and competitor price, recommend a fair selling price and explain the reasoning in two to three sentences."  
+2. "Return the recommended price, margin percent, and a low/base/high pricing scenario table. Format the output clearly."  
+3. "Explain the pricing recommendation in a supportive tone for small business owners. Keep it concise and helpful."  
 
-### Justification for the Level of AI Used
+### Prompt Iteration Summary  
+* Early prompts were too long and unstructured  
+* Structured prompts improved predictability  
+* Tone instructions improved clarity and usability  
+* Final prompts produce consistent, easy to parse pricing recommendations  
 
-The prototype only requires reasoning and generative text, so Gemini 1.5 Flash is an appropriate choice. More complex machine learning models or fine-tuning were unnecessary because the product does not rely on large datasets or predictive analytics. AI is intentionally used in a narrow, focused way to enhance clarity and decision support without overcomplicating the system.
+### Why This Level of AI Was Chosen  
+The prototype only requires reasoning and explanation, not predictive modeling. Gemini 1.5 Flash is ideal for text generation and business logic reasoning at this stage.
 
-## AI Disclosure
+---
 
-> **AI Disclosure**  
-> Portions of this README and parts of this project were created with the assistance of AI tools (Cursor AI and ChatGPT). I provided specific instructions, context, and project requirements, and the AI generated draft text, code suggestions, and debugging guidance. All AI-generated material was reviewed, edited, and approved by me. I fully understand every component of this project, and no content was included without my explicit oversight.
+## Academic Integrity Disclosure  
+AI tools (Cursor and ChatGPT) were used to generate portions of this documentation and assist with the frontend structure. All AI generated content was reviewed, edited, and validated to ensure accuracy and full understanding. I am responsible for all final implementation decisions.
 
-## Prompting Summary
+---
 
-> **Prompting Summary**  
-> Throughout the development of this project, I used structured prompts to guide AI tools in generating code, debugging API errors, and refining documentation. Examples of how prompting was used include:  
-> - Asking AI Studio and Cursor to generate the initial HTML, CSS, and JavaScript structure for the pricing tool  
-> - Using targeted prompts to debug the Google Gemini API model error and switch to the correct `gemini-2.0-flash-001` endpoint  
-> - Prompting Cursor to restyle and clean the UI for a polished prototype  
-> - Using prompts to help draft and edit the README and PRD structure  
->  
-> Prompts were iterative: I provided context → reviewed the output → refined the request. This ensured the final implementation matched the assignment requirements and that I understood all generated material.
-
+## Next Steps  
+* Support for additional product types  
+* Competitor comparison interface  
+* Improved UI styling  
+* Export or Save functionality  
+* Better prompt engineering  
+* More advanced pricing breakdown
