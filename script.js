@@ -9,7 +9,7 @@ const basePrice = document.getElementById('basePrice');
 const highPrice = document.getElementById('highPrice');
 
 // Gemini API Configuration
-const GEMINI_API_KEY = "AIzaSyASsMBfFZKGY4ZEDJ-mtGYOyp2e7Nvhm70";
+const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
 
 // Build the prompt for Gemini
 function buildPrompt(product, cost, competitorPrice) {
