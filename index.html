@@ -3,83 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMB Pricing Assistant</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Pricing Assistant</title>
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
-    <div class="container">
+    <div class="app-wrapper">
         <!-- Hero Section -->
-        <header class="hero">
-            <h1>SMB Pricing Assistant</h1>
-            <p class="hero-subtitle">Get AI-powered pricing recommendations based on your costs and competitor analysis</p>
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Pricing Assistant</h1>
+                <p class="header-subtitle">Get intelligent pricing recommendations powered by AI</p>
+            </div>
         </header>
 
-        <!-- Form Section -->
-        <section class="form-section">
-            <form id="pricingForm">
-                <div class="form-group">
-                    <label for="productName">Product Name</label>
-                    <input type="text" id="productName" name="productName" placeholder="Enter product name" required>
+        <div class="app-container">
+            <!-- Input Card -->
+            <div class="card input-card">
+                <div class="card-header">
+                    <h2>Product Information</h2>
+                    <p class="card-description">Enter your product details to generate pricing recommendations</p>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group form-group-half">
-                        <label for="costPerUnit">Cost per Unit ($)</label>
-                        <input type="number" id="costPerUnit" name="costPerUnit" placeholder="0.00" step="0.01" min="0" required>
+                <form id="pricingForm" class="pricing-form">
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="productName">Product Name</label>
+                            <input type="text" id="productName" name="productName" placeholder="e.g., Premium Coffee Beans" required>
+                        </div>
                     </div>
-                    
-                    <div class="form-group form-group-half">
-                        <label for="competitorPrice">Competitor Price ($)</label>
-                        <input type="number" id="competitorPrice" name="competitorPrice" placeholder="0.00" step="0.01" min="0" required>
+
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="storeType">Business Type</label>
+                                <select id="storeType" name="storeType" required>
+                                    <option value="">Select type...</option>
+                                    <option value="retail">Retail Store</option>
+                                    <option value="restaurant">Restaurant/Cafe</option>
+                                    <option value="service">Service Business</option>
+                                    <option value="ecommerce">E-commerce</option>
+                                    <option value="wholesale">Wholesale</option>
+                                    <option value="specialty">Specialty Shop</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="businessLocation">Location</label>
+                                <input type="text" id="businessLocation" name="businessLocation" placeholder="City, State or ZIP" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="costPerUnit">Your Cost per Unit</label>
+                                <div class="input-wrapper">
+                                    <span class="input-prefix">$</span>
+                                    <input type="number" id="costPerUnit" name="costPerUnit" placeholder="0.00" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="competitorPrice">Competitor Price <span class="optional">(optional)</span></label>
+                                <div class="input-wrapper">
+                                    <span class="input-prefix">$</span>
+                                    <input type="number" id="competitorPrice" name="competitorPrice" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                                <small class="form-hint">Leave blank to find automatically</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="generateBtn" class="btn-primary">
+                            <span class="btn-text">Analyze Pricing</span>
+                            <span class="btn-loading" style="display: none;">Analyzing...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Container -->
+            <div id="resultsContainer" style="display: none;">
+                <!-- AI Recommendation Card -->
+                <div class="card result-card" id="responseSection" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <h2>Recommended Price</h2>
+                            <div class="card-badge">AI Generated</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="aiResponse" class="recommendation-content">
+                            <!-- AI response will appear here -->
+                        </div>
                     </div>
                 </div>
-                
-                <button type="submit" id="generateBtn" class="btn-primary">
-                    <span class="btn-text">Generate price recommendation</span>
-                </button>
-            </form>
-        </section>
 
-        <!-- AI Response Section -->
-        <section class="response-section" id="responseSection" style="display: none;">
-            <div class="section-header">
-                <h2>Price Recommendation</h2>
-            </div>
-            <div class="ai-output-card" id="aiResponse">
-                <!-- AI response will appear here -->
-            </div>
-        </section>
+                <!-- Price Sensitivity Card -->
+                <div class="card result-card" id="tableSection" style="display: none;">
+                    <div class="card-header">
+                        <h2>Price Scenarios</h2>
+                        <p class="card-description">Explore different pricing strategies</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="scenarios-grid">
+                            <div class="scenario-item scenario-low">
+                                <div class="scenario-label">Low</div>
+                                <div class="scenario-price" id="lowPrice">$0.00</div>
+                                <div class="scenario-desc">More competitive</div>
+                            </div>
+                            <div class="scenario-item scenario-base">
+                                <div class="scenario-label">Recommended</div>
+                                <div class="scenario-price" id="basePrice">$0.00</div>
+                                <div class="scenario-desc">Balanced approach</div>
+                            </div>
+                            <div class="scenario-item scenario-high">
+                                <div class="scenario-label">High</div>
+                                <div class="scenario-price" id="highPrice">$0.00</div>
+                                <div class="scenario-desc">Premium pricing</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Sensitivity Table Section -->
-        <section class="table-section" id="tableSection" style="display: none;">
-            <div class="section-header">
-                <h2>Price Sensitivity Analysis</h2>
+                <!-- Competitor Analysis Card -->
+                <div class="card result-card" id="competitorSection" style="display: none;">
+                    <div class="card-header">
+                        <h2>Competitor Analysis</h2>
+                        <p class="card-description">Pricing from competitors in your area</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="competitorList" class="competitor-list">
+                            <!-- Competitor data will appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heatmap Card -->
+                <div class="card result-card" id="heatmapSection" style="display: none;">
+                    <div class="card-header">
+                        <h2>Price Heatmap</h2>
+                        <p class="card-description">Compare pricing across different areas</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="heatmapContainer" class="heatmap-container">
+                            <!-- Heatmap will appear here -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="table-wrapper">
-                <table class="sensitivity-table">
-                    <thead>
-                        <tr>
-                            <th>Scenario</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="scenario-cell">Low</td>
-                            <td id="lowPrice" class="price-cell">$0.00</td>
-                        </tr>
-                        <tr>
-                            <td class="scenario-cell">Base</td>
-                            <td id="basePrice" class="price-cell">$0.00</td>
-                        </tr>
-                        <tr>
-                            <td class="scenario-cell">High</td>
-                            <td id="highPrice" class="price-cell">$0.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        </div>
     </div>
 
     <script src="script.js"></script>

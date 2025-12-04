@@ -1,0 +1,18 @@
+# Config files that may contain secrets
+config.js
+.env
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
