@@ -162,10 +162,19 @@ async function listAvailableModels() {
       `https://generativelanguage.googleapis.com/v1/models?key=${GEMINI_API_KEY}`
     );
     const data = await response.json();
+    console.log('Available models response:', data);
     if (response.ok && data.models) {
-      return data.models
+      const available = data.models
         .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
-        .map(m => m.name.replace('models/', ''));
+        .map(m => {
+          // Handle both "models/gemini-pro" and "gemini-pro" formats
+          const name = m.name || '';
+          return name.replace(/^models\//, '');
+        });
+      console.log('Available models for generateContent:', available);
+      return available;
+    } else {
+      console.error('Error listing models:', data);
     }
   } catch (error) {
     console.warn('Could not list models:', error);
@@ -177,32 +186,36 @@ async function listAvailableModels() {
 async function callGemini(promptText) {
   // Check if API key placeholder wasn't replaced (for local testing)
   if (GEMINI_API_KEY === "GITHUB_SECRET_API_KEY_PLACEHOLDER") {
-    console.warn('API key placeholder detected - make sure GitHub Actions replaced it');
+    throw new Error('API key placeholder detected - GitHub Actions did not replace it. Check your GitHub Secrets.');
   }
 
-  // Try to get available models first, then fallback to common names
+  // Try to get available models first
   let modelsToTry = await listAvailableModels();
   
+  // Fallback to common model names if listing fails or returns empty
   if (!modelsToTry || modelsToTry.length === 0) {
-    // Fallback to common model names if listing fails
+    console.warn('Model listing failed or returned no models, using fallback list');
     modelsToTry = [
       'gemini-pro',
       'gemini-1.5-pro',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro-latest',
-      'gemini-1.5-flash-latest'
+      'gemini-1.5-flash'
     ];
   }
 
-  console.log('Trying models:', modelsToTry);
+  console.log('Will try models in this order:', modelsToTry);
 
   let lastError = null;
+  let lastErrorDetails = null;
 
   for (const model of modelsToTry) {
     try {
+      // Use the exact format: models/{model-name}:generateContent
       const endpoint = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`;
+      const url = `${endpoint}?key=${GEMINI_API_KEY}`;
       
-      const response = await fetch(`${endpoint}?key=${GEMINI_API_KEY}`, {
+      console.log(`Trying model: ${model} at ${endpoint}`);
+      
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -219,16 +232,21 @@ async function callGemini(promptText) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log(`Successfully used model: ${model}`);
-        return (
-          data.candidates?.[0]?.content?.parts?.[0]?.text ||
-          "The model did not return any text."
-        );
+        console.log(`✅ Successfully used model: ${model}`);
+        const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "The model did not return any text.";
+        return result;
       } else {
+        // Log the full error for debugging
+        console.error(`❌ Model ${model} failed:`, {
+          status: response.status,
+          error: data.error,
+          fullResponse: data
+        });
+        
         // If it's a 404 (model not found), try next model
         if (response.status === 404) {
-          console.warn(`Model ${model} not found (404), trying next...`);
           lastError = data.error?.message || `Model ${model} not found`;
+          lastErrorDetails = data.error;
           continue;
         }
         // For other errors, throw immediately
@@ -236,25 +254,21 @@ async function callGemini(promptText) {
         const errorCode = data.error?.code;
         const fullError = errorCode ? `${errorCode}: ${errorMessage}` : errorMessage;
         
-        console.error('Gemini API Error:', {
-          status: response.status,
-          error: data.error,
-          model: model
-        });
-        
         throw new Error(`API Error: ${fullError}`);
       }
     } catch (error) {
       // If it's a network error or non-404, throw it
-      if (!error.message.includes('404') && !error.message.includes('not found')) {
+      if (error.message && !error.message.includes('404') && !error.message.includes('not found')) {
         throw error;
       }
-      lastError = error.message;
+      lastError = error.message || 'Unknown error';
     }
   }
 
-  // If all models failed, throw the last error
-  throw new Error(`API Error: Could not find a working model. Last error: ${lastError}`);
+  // If all models failed, provide detailed error
+  const errorMsg = `API Error: Could not find a working model. Tried: ${modelsToTry.join(', ')}. Last error: ${lastError}`;
+  console.error('All models failed:', errorMsg, lastErrorDetails);
+  throw new Error(errorMsg);
 }
 
 // Extract recommended price from AI response text
