@@ -157,50 +157,77 @@ Keep the tone conversational and supportive. Keep the response under 200 words.`
 
 // Call Gemini API
 async function callGemini(promptText) {
-  // Use gemini-pro (stable model name)
-  const endpoint =
-    "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent";
+  // Try different model names in order of preference
+  const models = [
+    'gemini-pro',
+    'gemini-1.5-pro-latest',
+    'gemini-1.5-flash-latest',
+    'models/gemini-pro'
+  ];
 
   // Check if API key placeholder wasn't replaced (for local testing)
   if (GEMINI_API_KEY === "GITHUB_SECRET_API_KEY_PLACEHOLDER") {
     console.warn('API key placeholder detected - make sure GitHub Actions replaced it');
   }
 
-  const response = await fetch(`${endpoint}?key=${GEMINI_API_KEY}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: promptText }],
+  let lastError = null;
+
+  for (const model of models) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1/${model}:generateContent`;
+      
+      const response = await fetch(`${endpoint}?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    }),
-  });
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: promptText }],
+            },
+          ],
+        }),
+      });
 
-  const data = await response.json();
+      const data = await response.json();
 
-  if (!response.ok) {
-    const errorMessage = data.error?.message || data.error || `HTTP ${response.status}`;
-    const errorCode = data.error?.code;
-    const fullError = errorCode ? `${errorCode}: ${errorMessage}` : errorMessage;
-    
-    console.error('Gemini API Error:', {
-      status: response.status,
-      error: data.error,
-      apiKeyLength: GEMINI_API_KEY?.length,
-      apiKeyPrefix: GEMINI_API_KEY?.substring(0, 10) + '...'
-    });
-    
-    throw new Error(`API Error: ${fullError}`);
+      if (response.ok) {
+        return (
+          data.candidates?.[0]?.content?.parts?.[0]?.text ||
+          "The model did not return any text."
+        );
+      } else {
+        // If it's a 404 (model not found), try next model
+        if (response.status === 404) {
+          console.warn(`Model ${model} not found, trying next...`);
+          lastError = data.error?.message || `Model ${model} not found`;
+          continue;
+        }
+        // For other errors, throw immediately
+        const errorMessage = data.error?.message || data.error || `HTTP ${response.status}`;
+        const errorCode = data.error?.code;
+        const fullError = errorCode ? `${errorCode}: ${errorMessage}` : errorMessage;
+        
+        console.error('Gemini API Error:', {
+          status: response.status,
+          error: data.error,
+          model: model
+        });
+        
+        throw new Error(`API Error: ${fullError}`);
+      }
+    } catch (error) {
+      // If it's a network error or non-404, throw it
+      if (!error.message.includes('404') && !error.message.includes('not found')) {
+        throw error;
+      }
+      lastError = error.message;
+    }
   }
 
-  return (
-    data.candidates?.[0]?.content?.parts?.[0]?.text ||
-    "The model did not return any text."
-  );
+  // If all models failed, throw the last error
+  throw new Error(`API Error: Could not find a working model. Last error: ${lastError}`);
 }
 
 // Extract recommended price from AI response text
