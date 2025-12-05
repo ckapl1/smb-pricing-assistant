@@ -155,26 +155,52 @@ Return:
 Keep the tone conversational and supportive. Keep the response under 200 words.`;
 }
 
+// List available Gemini models
+async function listAvailableModels() {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models?key=${GEMINI_API_KEY}`
+    );
+    const data = await response.json();
+    if (response.ok && data.models) {
+      return data.models
+        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .map(m => m.name.replace('models/', ''));
+    }
+  } catch (error) {
+    console.warn('Could not list models:', error);
+  }
+  return null;
+}
+
 // Call Gemini API
 async function callGemini(promptText) {
-  // Try different model names in order of preference
-  const models = [
-    'gemini-pro',
-    'gemini-1.5-pro-latest',
-    'gemini-1.5-flash-latest',
-    'models/gemini-pro'
-  ];
-
   // Check if API key placeholder wasn't replaced (for local testing)
   if (GEMINI_API_KEY === "GITHUB_SECRET_API_KEY_PLACEHOLDER") {
     console.warn('API key placeholder detected - make sure GitHub Actions replaced it');
   }
 
+  // Try to get available models first, then fallback to common names
+  let modelsToTry = await listAvailableModels();
+  
+  if (!modelsToTry || modelsToTry.length === 0) {
+    // Fallback to common model names if listing fails
+    modelsToTry = [
+      'gemini-pro',
+      'gemini-1.5-pro',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro-latest',
+      'gemini-1.5-flash-latest'
+    ];
+  }
+
+  console.log('Trying models:', modelsToTry);
+
   let lastError = null;
 
-  for (const model of models) {
+  for (const model of modelsToTry) {
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1/${model}:generateContent`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`;
       
       const response = await fetch(`${endpoint}?key=${GEMINI_API_KEY}`, {
         method: "POST",
@@ -193,6 +219,7 @@ async function callGemini(promptText) {
       const data = await response.json();
 
       if (response.ok) {
+        console.log(`Successfully used model: ${model}`);
         return (
           data.candidates?.[0]?.content?.parts?.[0]?.text ||
           "The model did not return any text."
@@ -200,7 +227,7 @@ async function callGemini(promptText) {
       } else {
         // If it's a 404 (model not found), try next model
         if (response.status === 404) {
-          console.warn(`Model ${model} not found, trying next...`);
+          console.warn(`Model ${model} not found (404), trying next...`);
           lastError = data.error?.message || `Model ${model} not found`;
           continue;
         }
