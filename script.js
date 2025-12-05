@@ -129,30 +129,52 @@ function buildPrompt(product, cost, competitorPrices, storeType, location) {
         ? (competitorPrices.reduce((sum, p) => sum + p.price, 0) / competitorPrices.length).toFixed(2)
         : 'N/A';
     
+    const minCompetitorPrice = competitorPrices.length > 0
+        ? Math.min(...competitorPrices.map(p => p.price)).toFixed(2)
+        : 'N/A';
+    
+    const maxCompetitorPrice = competitorPrices.length > 0
+        ? Math.max(...competitorPrices.map(p => p.price)).toFixed(2)
+        : 'N/A';
+    
+    // Calculate reasonable price range
+    const reasonableMin = cost * 1.2; // 20% markup minimum
+    const reasonableMax = competitorPrices.length > 0 
+        ? Math.max(avgPrice * 1.1, cost * 2.5) // 10% above average or 2.5x cost, whichever is higher
+        : cost * 2.5;
+    
     return `You are a pricing advisor for small business owners.
 
 Business Details:
 - Product name: ${product}
 - Store type: ${storeType}
 - Business location: ${location}
-- Cost per unit: $${cost}
+- Cost per unit: $${cost.toFixed(2)}
 
 Competitor Analysis (${competitorPrices.length} competitors found):
 ${priceList}
 Average competitor price: $${avgPrice}
+Price range: $${minCompetitorPrice} - $${maxCompetitorPrice}
+
+IMPORTANT PRICING CONSTRAINTS:
+- Your cost is $${cost.toFixed(2)}, so the selling price MUST be higher than this
+- Recommended price should be between $${reasonableMin.toFixed(2)} and $${reasonableMax.toFixed(2)}
+- Aim for a margin between 20% and 60% (typical for ${storeType} businesses)
+- Price should be competitive with the average competitor price of $${avgPrice}
+- Do NOT recommend prices that are unreasonably high (more than 3x the average competitor price)
 
 Task:
-Analyze the competitor pricing data and recommend a selling price that balances:
-1. Profit margin (your cost is $${cost})
-2. Market competitiveness (considering ${competitorPrices.length} competitors)
-3. Local market conditions in ${location}
+Recommend a realistic, competitive selling price that:
+1. Ensures profitability (price > cost of $${cost.toFixed(2)})
+2. Is competitive with the market (considering average of $${avgPrice})
+3. Provides a reasonable margin (20-60% is typical)
 
-Return:
-1. Recommended price
-2. Estimated margin percent
-3. A short, friendly explanation (2-3 sentences) that considers the competitive landscape and helps a small business owner understand the pricing strategy.
+Format your response EXACTLY like this:
+Recommended Price: $XX.XX
+Margin: XX%
+Explanation: [2-3 sentences explaining the pricing strategy]
 
-Keep the tone conversational and supportive. Keep the response under 200 words.`;
+Keep the explanation conversational and supportive. The recommended price should be realistic and competitive.`;
 }
 
 // List available Gemini models
@@ -293,29 +315,39 @@ function extractRecommendedPrice(aiResponseText) {
         const recommendedMatch = line.match(/recommended\s+price[:\s]*\$?(\d+\.?\d*)/i);
         if (recommendedMatch) {
             const price = parseFloat(recommendedMatch[1]);
-            if (price > 0) {
+            if (price > 0 && price < 10000) { // Sanity check: price should be reasonable
                 return price;
             }
         }
     }
     
-    // If not found, try other patterns like "$X.xx", "price: $X.xx", etc.
+    // Try more specific patterns
     const pricePatterns = [
-        /(?:price|selling\s+price)[:\s]*\$?(\d+\.?\d*)/i,
+        /(?:recommended|suggested|recommend)\s+price[:\s]*\$?(\d+\.?\d*)/i,
+        /price[:\s]*\$?(\d+\.?\d*)/i,
         /\$(\d+\.?\d*)/,
     ];
 
+    const foundPrices = [];
     for (const pattern of pricePatterns) {
-        const match = aiResponseText.match(pattern);
-        if (match) {
+        const matches = aiResponseText.matchAll(new RegExp(pattern, 'gi'));
+        for (const match of matches) {
             const price = parseFloat(match[1]);
-            if (price > 0) {
-                return price;
+            if (price > 0 && price < 10000) {
+                foundPrices.push(price);
             }
         }
     }
+    
+    // Return the first reasonable price found
+    if (foundPrices.length > 0) {
+        // Prefer prices that look like recommendations (not in explanations)
+        const firstPrice = foundPrices[0];
+        return firstPrice;
+    }
 
     // If no price found, return null
+    console.warn('Could not extract price from AI response:', aiResponseText.substring(0, 200));
     return null;
 }
 
@@ -533,17 +565,32 @@ form.addEventListener('submit', async function(event) {
         aiResponse.innerHTML = `<p>${responseDisplay}</p>`;
         
         // Extract recommended price from response
-        const recommendedPrice = extractRecommendedPrice(aiResponseText);
+        let recommendedPrice = extractRecommendedPrice(aiResponseText);
         
         if (recommendedPrice) {
+            // Validate the price is reasonable
+            const avgCompetitorPrice = competitors.reduce((sum, c) => sum + c.price, 0) / competitors.length;
+            const maxReasonablePrice = Math.max(avgCompetitorPrice * 1.5, costPerUnit * 3);
+            const minReasonablePrice = Math.max(costPerUnit * 1.1, avgCompetitorPrice * 0.8);
+            
+            if (recommendedPrice > maxReasonablePrice) {
+                console.warn(`Extracted price $${recommendedPrice} seems too high. Capping at $${maxReasonablePrice.toFixed(2)}`);
+                recommendedPrice = maxReasonablePrice;
+            } else if (recommendedPrice < minReasonablePrice) {
+                console.warn(`Extracted price $${recommendedPrice} seems too low. Setting to $${minReasonablePrice.toFixed(2)}`);
+                recommendedPrice = minReasonablePrice;
+            }
+            
             console.log('Extracted Recommended Price:', recommendedPrice);
             // Render sensitivity table
             renderSensitivityTable(recommendedPrice, costPerUnit);
             tableSection.style.display = 'block';
         } else {
             console.warn('Could not extract price from AI response');
-            // Still show table with placeholder if price extraction fails
-            renderSensitivityTable(costPerUnit * 1.5, costPerUnit);
+            // Calculate a reasonable fallback price based on competitors and cost
+            const avgCompetitorPrice = competitors.reduce((sum, c) => sum + c.price, 0) / competitors.length;
+            const fallbackPrice = Math.max(costPerUnit * 1.3, avgCompetitorPrice * 0.9);
+            renderSensitivityTable(fallbackPrice, costPerUnit);
             tableSection.style.display = 'block';
         }
         
