@@ -185,8 +185,9 @@ async function listAvailableModels() {
 // Call Gemini API
 async function callGemini(promptText) {
   // Check if API key placeholder wasn't replaced (for local testing)
+  // Only show warning, don't throw - the key might be replaced by GitHub Actions
   if (GEMINI_API_KEY === "GITHUB_SECRET_API_KEY_PLACEHOLDER") {
-    throw new Error('API key placeholder detected - GitHub Actions did not replace it. Check your GitHub Secrets.');
+    console.warn('API key placeholder detected - if this is deployed, check GitHub Actions workflow');
   }
 
   // Try to get available models first
@@ -197,9 +198,12 @@ async function callGemini(promptText) {
     console.warn('Model listing failed or returned no models, using fallback list');
     modelsToTry = [
       'gemini-pro',
-      'gemini-1.5-pro',
-      'gemini-1.5-flash'
+      'gemini-1.5-pro-latest',
+      'gemini-1.5-flash-latest'
     ];
+  } else {
+    // Use the first available model from the API
+    console.log('Using models from API:', modelsToTry);
   }
 
   console.log('Will try models in this order:', modelsToTry);
