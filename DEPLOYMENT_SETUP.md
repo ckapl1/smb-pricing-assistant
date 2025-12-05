@@ -16,7 +16,7 @@ The API key is now securely stored in GitHub Secrets and will be injected during
 4. Click **New repository secret**
 5. Fill in the form:
    - **Name:** `GEMINI_API_KEY` (must match exactly)
-   - **Value:** Paste your actual Gemini API key: `AIzaSyASsMBfFZKGY4ZEDJ-mtGYOyp2e7Nvhm70`
+   - **Value:** Paste your actual Gemini API key (get it from your Google AI Studio account)
 6. Click **Add secret**
 
 ✅ Your API key is now securely stored and encrypted by GitHub.
