@@ -165,21 +165,30 @@ async function listAvailableModels() {
     console.log('Available models response:', data);
     if (response.ok && data.models) {
       const available = data.models
-        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .filter(m => {
+          const methods = m.supportedGenerationMethods || [];
+          return methods.includes('generateContent');
+        })
         .map(m => {
           // Handle both "models/gemini-pro" and "gemini-pro" formats
           const name = m.name || '';
-          return name.replace(/^models\//, '');
-        });
+          // Remove "models/" prefix if present
+          const cleanName = name.replace(/^models\//, '');
+          console.log(`Found model: ${name} -> ${cleanName}`);
+          return cleanName;
+        })
+        .filter(name => name && name.length > 0); // Remove empty names
+      
       console.log('Available models for generateContent:', available);
-      return available;
+      return available.length > 0 ? available : null;
     } else {
       console.error('Error listing models:', data);
+      return null;
     }
   } catch (error) {
     console.warn('Could not list models:', error);
+    return null;
   }
-  return null;
 }
 
 // Call Gemini API
