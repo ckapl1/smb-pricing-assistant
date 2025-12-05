@@ -157,9 +157,9 @@ Keep the tone conversational and supportive. Keep the response under 200 words.`
 
 // Call Gemini API
 async function callGemini(promptText) {
-  // Try gemini-1.5-flash first (most common), fallback to gemini-pro if needed
+  // Use gemini-pro (stable model name)
   const endpoint =
-    "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
+    "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent";
 
   // Check if API key placeholder wasn't replaced (for local testing)
   if (GEMINI_API_KEY === "GITHUB_SECRET_API_KEY_PLACEHOLDER") {
