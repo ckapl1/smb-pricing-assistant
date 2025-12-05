@@ -157,8 +157,14 @@ Keep the tone conversational and supportive. Keep the response under 200 words.`
 
 // Call Gemini API
 async function callGemini(promptText) {
+  // Try gemini-1.5-flash first (most common), fallback to gemini-pro if needed
   const endpoint =
-    "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
+    "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
+
+  // Check if API key placeholder wasn't replaced (for local testing)
+  if (GEMINI_API_KEY === "GITHUB_SECRET_API_KEY_PLACEHOLDER") {
+    console.warn('API key placeholder detected - make sure GitHub Actions replaced it');
+  }
 
   const response = await fetch(`${endpoint}?key=${GEMINI_API_KEY}`, {
     method: "POST",
@@ -178,7 +184,17 @@ async function callGemini(promptText) {
 
   if (!response.ok) {
     const errorMessage = data.error?.message || data.error || `HTTP ${response.status}`;
-    throw new Error(`API Error: ${errorMessage}`);
+    const errorCode = data.error?.code;
+    const fullError = errorCode ? `${errorCode}: ${errorMessage}` : errorMessage;
+    
+    console.error('Gemini API Error:', {
+      status: response.status,
+      error: data.error,
+      apiKeyLength: GEMINI_API_KEY?.length,
+      apiKeyPrefix: GEMINI_API_KEY?.substring(0, 10) + '...'
+    });
+    
+    throw new Error(`API Error: ${fullError}`);
   }
 
   return (
