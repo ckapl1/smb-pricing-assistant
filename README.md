@@ -28,6 +28,11 @@ A rudimentary early version of the tool can also be tested directly through Goog
 
 This version demonstrates the core AI behavior behind the pricing recommendations before the full UI was developed.
 
+## Demo Video  
+Watch a demonstration of the Pricing Assistant in action:
+
+**[View Demo Video](https://drive.google.com/file/d/125Cd4WqVwy712LUuM9u-rWy5ff58AvXo/view?usp=sharing)**
+
 ---
 
 ## Core Features (Implemented)  
